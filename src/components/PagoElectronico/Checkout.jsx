@@ -1,175 +1,145 @@
 import React, { useState } from 'react';
-import { procesarPago, generarComprobante } from '../../services/apiPagos';
-import './Checkout.css';
+import { procesarPago } from '../services/apiPagos';
+import './Checkout.css'; // Asume que tienes o crearás estilos
 
-const Checkout = ({ usuario }) => {
-    const [metodoPago, setMetodoPago] = useState('tarjeta');
-    const [datosTarjeta, setDatosTarjeta] = useState({
-        numero: '',
-        nombre: '',
-        vencimiento: '',
-        cvv: ''
-    });
-    const [cargando, setCargando] = useState(false);
-    const [comprobante, setComprobante] = useState(null);
-    const [error, setError] = useState('');
+const Checkout = ({ usuarioId, montoTotal }) => {
+  const [datosTarjeta, setDatosTarjeta] = useState({
+    numero: '',
+    nombre: '',
+    expiracion: '',
+    cvv: ''
+  });
+  const [procesando, setProcesando] = useState(false);
+  const [mensaje, setMensaje] = useState(null);
+  const [error, setError] = useState(null); // Para mensajes de error mejorados
 
-    const montoCuota = usuario?.montoCuota || 1500.00;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setDatosTarjeta(prev => ({ ...prev, [name]: value }));
+    // Limpiar error al empezar a escribir
+    if (error) setError(null);
+  };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setCargando(true);
-        setError('');
+  const validarCampos = () => {
+    if (!datosTarjeta.numero || datosTarjeta.numero.length < 16) {
+      setError('El número de tarjeta debe tener 16 dígitos');
+      return false;
+    }
+    if (!datosTarjeta.nombre) {
+      setError('El nombre en la tarjeta es requerido');
+      return false;
+    }
+    // ... más validaciones
+    return true;
+  };
 
-        try {
-            const datosPago = {
-                usuarioId: usuario.id,
-                nombre: usuario.nombre,
-                email: usuario.email,
-                monto: montoCuota,
-                metodo: metodoPago,
-                fecha: new Date().toISOString(),
-                referencia: `PAGO-${Date.now()}`
-            };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    
+    if (!validarCampos()) return;
 
-            if (metodoPago === 'tarjeta') {
-                datosPago.datosTarjeta = datosTarjeta;
-            }
+    setProcesando(true);
+    setMensaje(null);
 
-            const resultado = await procesarPago(datosPago);
-            
-            if (resultado.estado === 'aprobado') {
-                const comp = await generarComprobante(resultado.transaccionId);
-                setComprobante(comp);
-                alert('✅ Pago procesado exitosamente');
-            } else {
-                setError('El pago fue rechazado. Verifica tus datos.');
-            }
-        } catch (err) {
-            setError('Error al procesar el pago: ' + err.message);
-        } finally {
-            setCargando(false);
-        }
-    };
+    try {
+      const resultado = await procesarPago({
+        usuarioId,
+        monto: montoTotal,
+        ...datosTarjeta
+      });
 
-    return (
-        <div className="checkout-container">
-            <h2>💳 Pago de Cuota Condominal</h2>
-            
-            <div className="resumen-pago">
-                <h3>Resumen del Pago</h3>
-                <p><strong>Residente:</strong> {usuario.nombre}</p>
-                <p><strong>ID Usuario:</strong> {usuario.id}</p>
-                <p><strong>Monto a pagar:</strong> ${montoCuota.toFixed(2)} MXN</p>
-                <p><strong>Fecha:</strong> {new Date().toLocaleDateString('es-MX')}</p>
-            </div>
+      if (resultado.exito) {
+        setMensaje({ tipo: 'exito', texto: '¡Pago exitoso! Recibirás un comprobante por correo.' });
+        // Limpiar formulario
+        setDatosTarjeta({ numero: '', nombre: '', expiracion: '', cvv: '' });
+      } else {
+        setError(resultado.mensaje || 'Error al procesar el pago. Intenta de nuevo.');
+      }
+    } catch (err) {
+      setError('Error de conexión. Verifica tu internet.');
+    } finally {
+      setProcesando(false);
+    }
+  };
 
-            <form onSubmit={handleSubmit}>
-                <div className="metodo-pago">
-                    <h3>Selecciona método de pago:</h3>
-                    <div className="opciones-metodo">
-                        <label>
-                            <input
-                                type="radio"
-                                value="tarjeta"
-                                checked={metodoPago === 'tarjeta'}
-                                onChange={(e) => setMetodoPago(e.target.value)}
-                            />
-                            🏦 Tarjeta de crédito/débito
-                        </label>
-                        <label>
-                            <input
-                                type="radio"
-                                value="transferencia"
-                                checked={metodoPago === 'transferencia'}
-                                onChange={(e) => setMetodoPago(e.target.value)}
-                            />
-                            📤 Transferencia bancaria
-                        </label>
-                        <label>
-                            <input
-                                type="radio"
-                                value="paypal"
-                                checked={metodoPago === 'paypal'}
-                                onChange={(e) => setMetodoPago(e.target.value)}
-                            />
-                            📱 PayPal
-                        </label>
-                    </div>
-                </div>
-
-                {metodoPago === 'tarjeta' && (
-                    <div className="datos-tarjeta">
-                        <h4>Datos de la tarjeta</h4>
-                        <input
-                            type="text"
-                            placeholder="Número de tarjeta"
-                            value={datosTarjeta.numero}
-                            onChange={(e) => setDatosTarjeta({...datosTarjeta, numero: e.target.value})}
-                            maxLength="16"
-                        />
-                        <input
-                            type="text"
-                            placeholder="Nombre como aparece en la tarjeta"
-                            value={datosTarjeta.nombre}
-                            onChange={(e) => setDatosTarjeta({...datosTarjeta, nombre: e.target.value})}
-                        />
-                        <div className="fila-tarjeta">
-                            <input
-                                type="text"
-                                placeholder="MM/YY"
-                                value={datosTarjeta.vencimiento}
-                                onChange={(e) => setDatosTarjeta({...datosTarjeta, vencimiento: e.target.value})}
-                            />
-                            <input
-                                type="text"
-                                placeholder="CVV"
-                                value={datosTarjeta.cvv}
-                                onChange={(e) => setDatosTarjeta({...datosTarjeta, cvv: e.target.value})}
-                                maxLength="3"
-                            />
-                        </div>
-                    </div>
-                )}
-
-                {error && <div className="error-message">{error}</div>}
-
-                <button 
-                    type="submit" 
-                    className="btn-pagar"
-                    disabled={cargando}
-                >
-                    {cargando ? '⏳ Procesando...' : '✅ Realizar Pago'}
-                </button>
-            </form>
-
-            {comprobante && (
-                <div className="comprobante">
-                    <h3>📄 Comprobante de Pago Generado</h3>
-                    <div className="detalles-comprobante">
-                        <p><strong>ID Transacción:</strong> {comprobante.id}</p>
-                        <p><strong>Fecha y Hora:</strong> {comprobante.fecha}</p>
-                        <p><strong>Monto Pagado:</strong> ${comprobante.monto} MXN</p>
-                        <p><strong>Método:</strong> {comprobante.metodo}</p>
-                        <p><strong>Estado:</strong> <span className="estado-aprobado">APROBADO</span></p>
-                    </div>
-                    <div className="acciones-comprobante">
-                        <button onClick={() => window.print()}>🖨️ Imprimir</button>
-                        <button onClick={() => alert('Comprobante guardado en tu historial')}>💾 Guardar</button>
-                        <a href={`/comprobantes/${comprobante.id}.pdf`} target="_blank" rel="noopener noreferrer">
-                            📥 Descargar PDF
-                        </a>
-                    </div>
-                </div>
-            )}
-
-            <div className="info-seguridad">
-                <p>🔒 Tus datos están protegidos con encriptación SSL</p>
-                <p>💳 Aceptamos: Visa, MasterCard, American Express</p>
-                <p>📞 Soporte: 01-800-123-4567</p>
-            </div>
+  return (
+    <div className="checkout-container">
+      <h2>Detalles de Pago</h2>
+      <p className="monto-total">Total a pagar: ${montoTotal}</p>
+      
+      {error && (
+        <div className="mensaje-error" role="alert">
+          ⚠️ {error}
         </div>
-    );
+      )}
+      
+      {mensaje && mensaje.tipo === 'exito' && (
+        <div className="mensaje-exito" role="status">
+          ✅ {mensaje.texto}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit}>
+        <div className="campo">
+          <label>Número de tarjeta:</label>
+          <input
+            type="text"
+            name="numero"
+            value={datosTarjeta.numero}
+            onChange={handleChange}
+            maxLength="16"
+            placeholder="1234 5678 9012 3456"
+            disabled={procesando}
+          />
+        </div>
+
+        <div className="campo">
+          <label>Nombre en la tarjeta:</label>
+          <input
+            type="text"
+            name="nombre"
+            value={datosTarjeta.nombre}
+            onChange={handleChange}
+            placeholder="Como aparece en la tarjeta"
+            disabled={procesando}
+          />
+        </div>
+
+        <div className="fila-campos">
+          <div className="campo pequeño">
+            <label>Expiración:</label>
+            <input
+              type="text"
+              name="expiracion"
+              value={datosTarjeta.expiracion}
+              onChange={handleChange}
+              placeholder="MM/AA"
+              maxLength="5"
+              disabled={procesando}
+            />
+          </div>
+
+          <div className="campo pequeño">
+            <label>CVV:</label>
+            <input
+              type="password"
+              name="cvv"
+              value={datosTarjeta.cvv}
+              onChange={handleChange}
+              maxLength="4"
+              placeholder="123"
+              disabled={procesando}
+            />
+          </div>
+        </div>
+
+        <button type="submit" disabled={procesando} className="btn-pagar">
+          {procesando ? 'Procesando...' : 'Pagar ahora'}
+        </button>
+      </form>
+    </div>
+  );
 };
 
 export default Checkout;

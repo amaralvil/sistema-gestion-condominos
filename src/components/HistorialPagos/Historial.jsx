@@ -1,188 +1,111 @@
 import React, { useState, useEffect } from 'react';
-import { obtenerHistorialPagos } from '../../services/apiPagos';
+import { obtenerHistorial } from '../services/apiPagos';
 import './Historial.css';
 
 const Historial = ({ usuarioId }) => {
-    const [historial, setHistorial] = useState([]);
-    const [cargando, setCargando] = useState(true);
-    const [filtro, setFiltro] = useState('todos');
-    const [totalPagado, setTotalPagado] = useState(0);
+  const [historial, setHistorial] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [filtro, setFiltro] = useState('');
 
-    useEffect(() => {
-        cargarHistorial();
-    }, [usuarioId]);
-
+  useEffect(() => {
     const cargarHistorial = async () => {
-        try {
-            setCargando(true);
-            const data = await obtenerHistorialPagos(usuarioId);
-            setHistorial(data);
-            
-            // Calcular total pagado
-            const total = data.reduce((sum, pago) => sum + pago.monto, 0);
-            setTotalPagado(total);
-        } catch (error) {
-            console.error('Error cargando historial:', error);
-        } finally {
-            setCargando(false);
-        }
+      setCargando(true);
+      const datos = await obtenerHistorial(usuarioId);
+      setHistorial(datos);
+      setCargando(false);
     };
+    cargarHistorial();
+  }, [usuarioId]);
 
-    const filtrarHistorial = () => {
-        if (filtro === 'todos') return historial;
-        
-        const ahora = new Date();
-        let fechaLimite = new Date();
-        
-        switch(filtro) {
-            case 'mes':
-                fechaLimite.setMonth(ahora.getMonth() - 1);
-                break;
-            case 'trimestre':
-                fechaLimite.setMonth(ahora.getMonth() - 3);
-                break;
-            case 'año':
-                fechaLimite.setFullYear(ahora.getFullYear() - 1);
-                break;
-            default:
-                return historial;
-        }
-        
-        return historial.filter(pago => new Date(pago.fecha) >= fechaLimite);
-    };
-
-    const exportarCSV = () => {
-        const csv = [
-            ['Fecha', 'ID Transacción', 'Método', 'Monto', 'Estado', 'Referencia'],
-            ...filtrarHistorial().map(pago => [
-                pago.fecha,
-                pago.id,
-                pago.metodo,
-                `$${pago.monto}`,
-                pago.estado,
-                pago.referencia
-            ])
-        ].map(row => row.join(',')).join('\n');
-        
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `historial_pagos_${usuarioId}.csv`;
-        a.click();
-    };
-
-    const historialFiltrado = filtrarHistorial();
-
-    return (
-        <div className="historial-container">
-            <h2>📊 Historial de Pagos</h2>
-            
-            <div className="resumen-estadisticas">
-                <div className="estadistica">
-                    <h3>Total Pagado</h3>
-                    <p className="monto-total">${totalPagado.toFixed(2)} MXN</p>
-                </div>
-                <div className="estadistica">
-                    <h3>Transacciones</h3>
-                    <p className="numero-transacciones">{historial.length}</p>
-                </div>
-                <div className="estadistica">
-                    <h3>Último Pago</h3>
-                    <p className="ultimo-pago">
-                        {historial.length > 0 
-                            ? new Date(historial[0].fecha).toLocaleDateString('es-MX')
-                            : 'Sin pagos'
-                        }
-                    </p>
-                </div>
-            </div>
-
-            <div className="controles-historial">
-                <div className="filtros">
-                    <label>Filtrar por:</label>
-                    <select value={filtro} onChange={(e) => setFiltro(e.target.value)}>
-                        <option value="todos">Todos los pagos</option>
-                        <option value="mes">Último mes</option>
-                        <option value="trimestre">Último trimestre</option>
-                        <option value="año">Último año</option>
-                    </select>
-                </div>
-                
-                <button onClick={exportarCSV} className="btn-exportar">
-                    📥 Exportar a CSV
-                </button>
-                
-                <button onClick={cargarHistorial} className="btn-actualizar">
-                    🔄 Actualizar
-                </button>
-            </div>
-
-            {cargando ? (
-                <div className="cargando">Cargando historial...</div>
-            ) : historialFiltrado.length === 0 ? (
-                <div className="sin-resultados">
-                    <p>No hay pagos registrados para el periodo seleccionado.</p>
-                </div>
-            ) : (
-                <div className="tabla-historial">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Fecha</th>
-                                <th>ID Transacción</th>
-                                <th>Método</th>
-                                <th>Monto</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {historialFiltrado.map((pago, index) => (
-                                <tr key={pago.id || index}>
-                                    <td>{new Date(pago.fecha).toLocaleDateString('es-MX')}</td>
-                                    <td className="id-transaccion">{pago.id}</td>
-                                    <td>
-                                        <span className={`badge metodo-${pago.metodo}`}>
-                                            {pago.metodo === 'tarjeta' ? '💳' : 
-                                             pago.metodo === 'transferencia' ? '🏦' : '📱'}
-                                            {pago.metodo}
-                                        </span>
-                                    </td>
-                                    <td className="monto">${pago.monto.toFixed(2)}</td>
-                                    <td>
-                                        <span className={`estado ${pago.estado}`}>
-                                            {pago.estado}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <button 
-                                            className="btn-detalle"
-                                            onClick={() => alert(`Detalles del pago:\nID: ${pago.id}\nMonto: $${pago.monto}\nMétodo: ${pago.metodo}`)}
-                                        >
-                                            👁️ Ver
-                                        </button>
-                                        <button 
-                                            className="btn-comprobante"
-                                            onClick={() => window.open(`/comprobantes/${pago.id}.pdf`, '_blank')}
-                                        >
-                                            📄 PDF
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
-
-            <div className="leyenda">
-                <p><span className="estado aprobado"></span> Aprobado</p>
-                <p><span className="estado pendiente"></span> Pendiente</p>
-                <p><span className="estado rechazado"></span> Rechazado</p>
-            </div>
-        </div>
+  const exportarCSV = () => {
+    const encabezados = ['Fecha', 'Concepto', 'Monto', 'Estado'];
+    const filas = historialFiltrado.map(item => 
+      [item.fecha, item.concepto, item.monto, item.estado]
     );
+    
+    const csvContent = [encabezados, ...filas]
+      .map(row => row.join(','))
+      .join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'historial-pagos.csv';
+    a.click();
+  };
+
+  const historialFiltrado = historial.filter(item =>
+    item.concepto.toLowerCase().includes(filtro.toLowerCase()) ||
+    item.fecha.includes(filtro)
+  );
+
+  const totalAdeudos = historial
+    .filter(item => item.estado === 'Adeudo')
+    .reduce((sum, item) => sum + item.monto, 0);
+
+  if (cargando) return <div className="cargando">Cargando historial...</div>;
+
+  return (
+    <div className="historial-container">
+      <h2>Historial de Pagos</h2>
+      
+      <div className="resumen">
+        <div className="tarjeta-resumen">
+          <span className="label">Total pagado:</span>
+          <span className="valor">
+            ${historial.filter(i => i.estado === 'Pagado').reduce((s, i) => s + i.monto, 0)}
+          </span>
+        </div>
+        <div className="tarjeta-resumen adeudo">
+          <span className="label">Adeudo total:</span>
+          <span className="valor">${totalAdeudos}</span>
+        </div>
+      </div>
+
+      <div className="controles">
+        <input
+          type="text"
+          placeholder="Buscar por fecha o concepto..."
+          value={filtro}
+          onChange={(e) => setFiltro(e.target.value)}
+          className="buscador"
+        />
+        <button onClick={exportarCSV} className="btn-exportar">
+          Exportar a CSV
+        </button>
+      </div>
+
+      <table className="tabla-historial">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Concepto</th>
+            <th>Monto</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {historialFiltrado.map((item, index) => (
+            <tr key={index} className={item.estado === 'Adeudo' ? 'fila-adeudo' : ''}>
+              <td>{item.fecha}</td>
+              <td>{item.concepto}</td>
+              <td>${item.monto}</td>
+              <td>
+                <span className={`estado-badge ${item.estado.toLowerCase()}`}>
+                  {item.estado}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      
+      {historialFiltrado.length === 0 && (
+        <p className="sin-resultados">No se encontraron registros</p>
+      )}
+    </div>
+  );
 };
 
 export default Historial;
