@@ -7,23 +7,42 @@ Aplicación web para la gestión administrativa y financiera de condominios, des
 
 ## 📌 Estado del Proyecto
 
-**Sprint 1 completado (Marzo 2026)**  
-Próximo: **Sprint 2 (en planificación)**
+| Sprint | Estado | Fecha |
+|:---|:---|:---|
+| **Sprint 1** | ✅ Completado | Marzo 2026 |
+| **Sprint 2** | ✅ Completado | Marzo-Abril 2026 |
+| **Sprint 3** | 🔄 Planificado | Mayo 2026 |
 
-## ✅ Funcionalidades Implementadas (Sprint 1)
+---
+
+## ✅ Funcionalidades Implementadas
+
+### Sprint 1 (Completado)
 
 | ID | Historia de Usuario | Estado | Componente |
 |:---|:---|:---|:---|
-| **PB-F01/PB-01** | Pago electrónico de cuotas (simulación) | ✅ 80% (pasa a S2) | [`Checkout.jsx`](src/components/Checkout.jsx) |
-| **PB-F03/PB-03** | Historial de pagos consultable | ✅ 100% | [`Historial.jsx`](src/components/Historial.jsx) |
-| **PB-T01** | Base de datos centralizada (backend simulado) | ✅ 90% (pasa a S2) | [`apiPagos.js`](src/services/apiPagos.js) |
+| **PB-F01/PB-01** | Pago electrónico de cuotas (simulación) | ✅ 80% (pasa a S3) | `Checkout.jsx` |
+| **PB-F03/PB-03** | Historial de pagos consultable | ✅ 100% | `Historial.jsx` |
+| **PB-T01** | Base de datos centralizada (backend simulado) | ✅ 90% (pasa a S3) | `apiPagos.js` |
 
-### Características principales:
-- 🎨 Interfaz responsiva y amigable
-- 💳 Simulación de API para pagos (pendiente integración real)
-- 📊 Visualización de historial con filtros por fecha/concepto
-- 📥 Exportación de datos a CSV
-- ⚠️ Mensajes de error claros y validación de formularios
+### Sprint 2 (Completado)
+
+| ID | Historia de Usuario | Estado | Componente |
+|:---|:---|:---|:---|
+| **PB-F02** | Reportes financieros con dashboard y exportación | ✅ 100% | `ReportesFinancieros.jsx` |
+| **PB-F04** | Configuración de cuotas, multas y periodos | ⏳ 80% (pasa a S3) | `ConfigCuotas.jsx` |
+| **PB-T02** | Gestión de usuarios con roles y permisos | ⏳ 60% (pasa a S3) | `GestionUsuarios.jsx` |
+
+### Sprint 3 (Planificado)
+
+| ID | Historia de Usuario | Estado Previsto |
+|:---|:---|:---|
+| **PB-F01** | Integración real con API de pagos | Pendiente |
+| **PB-F04** | Cálculo automático de multas y auditoría | Pendiente |
+| **PB-T02a** | Autenticación 2FA y backend completo | Pendiente |
+| **PB-T02b** | Autogestión de perfil de usuario | Pendiente |
+
+---
 
 ## 🚀 Instalación y Ejecución
 

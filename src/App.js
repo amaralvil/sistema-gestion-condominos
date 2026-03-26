@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import './App.css';
-import Checkout from './components/PagoElectronico/Checkout';
-import Historial from './components/HistorialPagos/Historial';
+import Checkout from './components/Checkout';
+import Historial from './components/Historial';
+import ReportesFinancieros from './components/ReportesFinancieros';
+import ConfigCuotas from './components/ConfigCuotas';
+import GestionUsuarios from './components/GestionUsuarios';
 
 function App() {
     // Datos de usuario simulado
