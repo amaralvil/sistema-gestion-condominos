@@ -11,7 +11,7 @@ Aplicación web para la gestión administrativa y financiera de condominios, des
 |:---|:---|:---|
 | **Sprint 1** | ✅ Completado | Marzo 2026 |
 | **Sprint 2** | ✅ Completado | Marzo-Abril 2026 |
-| **Sprint 3** | 🔄 Planificado | Mayo 2026 |
+| **Sprint 3** | ✅ Completado | Abril 2026 |
 
 ---
 
@@ -21,46 +21,33 @@ Aplicación web para la gestión administrativa y financiera de condominios, des
 
 | ID | Historia de Usuario | Estado | Componente |
 |:---|:---|:---|:---|
-| **PB-F01/PB-01** | Pago electrónico de cuotas (simulación) | ✅ 80% (pasa a S3) | `Checkout.jsx` |
-| **PB-F03/PB-03** | Historial de pagos consultable | ✅ 100% | `Historial.jsx` |
-| **PB-T01** | Base de datos centralizada (backend simulado) | ✅ 90% (pasa a S3) | `apiPagos.js` |
+| **PB-F01** | Pago electrónico de cuotas (simulación) | ✅ 80% | `Checkout.jsx` |
+| **PB-F03** | Historial de pagos consultable | ✅ 100% | `Historial.jsx` |
+| **PB-T01** | Base de datos centralizada | ✅ 90% | `apiPagos.js` |
 
 ### Sprint 2 (Completado)
 
 | ID | Historia de Usuario | Estado | Componente |
 |:---|:---|:---|:---|
-| **PB-F02** | Reportes financieros con dashboard y exportación | ✅ 100% | `ReportesFinancieros.jsx` |
-| **PB-F04** | Configuración de cuotas, multas y periodos | ⏳ 80% (pasa a S3) | `ConfigCuotas.jsx` |
-| **PB-T02** | Gestión de usuarios con roles y permisos | ⏳ 60% (pasa a S3) | `GestionUsuarios.jsx` |
+| **PB-F02** | Reportes financieros | ✅ 100% | `ReportesFinancieros.jsx` |
+| **PB-F04** | Configuración de cuotas | ⏳ 80% | `ConfigCuotas.jsx` |
+| **PB-T02** | Gestión de usuarios | ⏳ 60% | `GestionUsuarios.jsx` |
 
-### Sprint 3 (Planificado)
+### Sprint 3 (Completado)
 
-| ID | Historia de Usuario | Estado Previsto |
-|:---|:---|:---|
-| **PB-F01** | Integración real con API de pagos | Pendiente |
-| **PB-F04** | Cálculo automático de multas y auditoría | Pendiente |
-| **PB-T02a** | Autenticación 2FA y backend completo | Pendiente |
-| **PB-T02b** | Autogestión de perfil de usuario | Pendiente |
+| ID | Historia de Usuario | Estado | Componente |
+|:---|:---|:---|:---|
+| **PB-F01** | Pago electrónico (API real) | ✅ 100% | `PagosReales.jsx` |
+| **PB-F04** | Configuración de cuotas (completa) | ✅ 100% | `ConfigCuotasCompleto.jsx` |
+| **PB-T02a** | Gestión de usuarios (completa) | ✅ 100% | `GestionUsuariosCompleto.jsx` |
+| **PB-T02b** | Perfil de usuario | ✅ 100% | `PerfilUsuarioAutogestion.jsx` |
 
 ---
 
 ## 🚀 Instalación y Ejecución
 
-### Prerrequisitos
-- Node.js 16 o superior
-- npm o yarn
-
-### Pasos de instalación
-
 ```bash
-# 1. Clonar el repositorio
 git clone https://github.com/amaralvil/sistema-gestion-condominos.git
-
-# 2. Entrar al directorio
 cd sistema-gestion-condominos
-
-# 3. Instalar dependencias
 npm install
-
-# 4. Ejecutar en modo desarrollo
 npm start

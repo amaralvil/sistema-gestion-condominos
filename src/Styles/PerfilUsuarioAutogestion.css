@@ -1,0 +1,14 @@
+.perfil-usuario-container { max-width: 600px; margin: 0 auto; padding: 20px; }
+.seccion-perfil { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.campo { margin-bottom: 15px; }
+.campo label { display: block; margin-bottom: 5px; font-weight: bold; }
+.campo input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
+.campo-checkbox { margin-bottom: 10px; }
+.acciones-perfil { display: flex; gap: 10px; margin-top: 15px; }
+.btn-editar-perfil, .btn-cambiar-pass, .btn-guardar-pref { background: #007bff; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; }
+.btn-cancelar { background: #6c757d; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; }
+.btn-guardar { background: #28a745; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; }
+.mensaje-perfil { padding: 10px; border-radius: 8px; margin-bottom: 15px; }
+.mensaje-perfil.exito { background: #d4edda; color: #155724; }
+.mensaje-perfil.error { background: #f8d7da; color: #721c24; }
+.cargando-perfil { text-align: center; padding: 40px; color: #666; }
